@@ -1,7 +1,7 @@
 # O’Syndic
 
 O’Syndic est un site vitrine dédié aux syndics de copropriétés. J'ai développé ce site en utilisant **Vite.js**.  
-L'objectif de la création de ce site est de perfectionner mes compétences en création des **landaning page** de me connecter aux **API REST**
+L'objectif de la création de ce site est de perfectionner mes compétences en création des **landaning page** et de se connecter aux **API REST**
 
 Les technologies utilisées pour ce projet comprennent :
 
