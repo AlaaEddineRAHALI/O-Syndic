@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Navbar,
-  Hero,
-  Banner,
-  Form,
-  Cards,
-  Footer,
-  FormikContainer,
-} from "./components/";
+import { Navbar, Hero, Banner, Form, Cards, Footer } from "./components/";
 
 function App() {
   return (
@@ -18,7 +10,6 @@ function App() {
       </div>
       <div className="w-full">
         <Banner />
-        <FormikContainer />
         <Form />
         <Cards />
         <Footer />
