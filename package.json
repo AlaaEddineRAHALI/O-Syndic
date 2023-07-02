@@ -11,6 +11,7 @@
   "dependencies": {
     "autoprefixer": "^10.4.14",
     "axios": "^1.4.0",
+    "codes-postaux": "^4.0.0",
     "cors": "^2.8.5",
     "formik": "^2.4.2",
     "postcss": "^8.4.24",

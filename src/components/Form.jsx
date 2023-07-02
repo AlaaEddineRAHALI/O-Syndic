@@ -1,17 +1,57 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-useless-escape */
 import React from "react";
+import { useState } from "react";
+import { useEffect } from "react";
 import Axios from "axios";
 import { useFormik } from "formik";
+
 import * as Yup from "yup";
 
 function Form() {
+  const [zipcode, setZipcode] = useState("");
+  const [cities, setCities] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const apiUrl = "https://geo.api.gouv.fr/communes?codePostal=";
+    const format = "&format=json";
+
+    const fetchData = async () => {
+      try {
+        const response = await Axios.get(apiUrl + zipcode + format);
+        const results = response.data;
+
+        if (results.length) {
+          setErrorMessage("");
+          setCities(results);
+        } else {
+          if (zipcode) {
+            console.log("Erreur de code postal.");
+            setErrorMessage("Aucune commune avec ce code postal.");
+          } else {
+            setErrorMessage("");
+            setCities([]);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        setCities([]);
+      }
+    };
+
+    fetchData();
+  }, [zipcode]);
+
+  const handleZipcodeChange = (event) => {
+    const code = event.target.value;
+    setZipcode(code);
+  };
   const formik = useFormik({
     initialValues: {
       name: "",
       lastName: "",
       email: "",
-      picked: "",
     },
 
     validationSchema: Yup.object({
@@ -75,7 +115,6 @@ function Form() {
             {formik.touched.name && formik.errors.name ? (
               <div>{formik.errors.name}</div>
             ) : null}
-
             <input
               id="lastName"
               className="p-3  w-full rounded-md text-black mb-3"
@@ -86,7 +125,6 @@ function Form() {
             {formik.touched.lastName && formik.errors.lastName ? (
               <div className="bg-red-500">{formik.errors.lastName}</div>
             ) : null}
-
             <input
               id="email"
               className="p-3  w-full rounded-md text-black mb-3"
@@ -97,7 +135,7 @@ function Form() {
             {formik.touched.email && formik.errors.email ? (
               <div>{formik.errors.email}</div>
             ) : null}
-
+            75
             {formik.status && formik.status.message && (
               <p
                 className={` ${
@@ -109,7 +147,24 @@ function Form() {
                 {formik.status.message}
               </p>
             )}
-
+            <input
+              id="zipcode"
+              type="text"
+              className="p-3  w-full rounded-md text-black mb-3"
+              value={zipcode}
+              onChange={handleZipcodeChange}
+            />
+            <select
+              id="city"
+              className="p-3  w-full rounded-md text-black mb-3"
+            >
+              {cities.map((city) => (
+                <option key={city.nom} value={city.nom}>
+                  {city.nom}
+                </option>
+              ))}
+            </select>
+            {errorMessage && <div id="error-message">{errorMessage}</div>}
             <button
               type="submit"
               disabled={formik.isSubmitting}
