@@ -10,38 +10,19 @@ import * as Yup from "yup";
 
 function Form() {
   const [zipcode, setZipcode] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [cities, setCities] = useState([]);
-  const [selectedCity, setSelectedCity] = useState("dd");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleZipcodeChange = (event) => {
-    const code = event.target.value;
-    setZipcode(code);
-  };
-  const handleCityChange = (event) => {
-    const cityName = event.target.value;
-
-    if (cityName) {
-      const filteredResults = cities.filter((city) => city.nom === cityName);
-      if (filteredResults.length === 1) {
-        setSelectedCity(filteredResults[0].nom);
-      } else {
-        setSelectedCity("");
-      }
-    }
-  };
-  useEffect(() => {
-    if (cities && cities.length > 0) {
-      const firstCityName = cities[0].nom;
-      setSelectedCity(firstCityName);
-    }
-  }, [cities]);
   useEffect(() => {
     const apiUrl = "https://geo.api.gouv.fr/communes?codePostal=";
+
+    // const format = "&format=json";
+
     const fetchData = async () => {
       try {
         const response = await Axios.get(apiUrl + zipcode);
         const results = response.data;
+        console.log(results);
 
         if (results.length) {
           setErrorMessage("");
@@ -64,13 +45,17 @@ function Form() {
     fetchData();
   }, [zipcode]);
 
+  const handleZipcodeChange = (event) => {
+    const code = event.target.value;
+    setZipcode(code);
+  };
   const formik = useFormik({
     initialValues: {
       name: "",
       lastName: "",
       email: "",
-      code: "",
       nom: "",
+      code: "",
     },
 
     validationSchema: Yup.object({
@@ -87,28 +72,17 @@ function Form() {
       email: Yup.string()
         .email("Adresse mail est invalide")
         .required("Adresse mail est requise"),
-      code: Yup.string().matches(
-        /^[0-9]{5}$/,
-        "Code postal doit contenir exactement 5 chiffres"
-      ),
-      nom: Yup.string(),
     }),
     onSubmit: (values, { resetForm, setStatus }) => {
-      console.log(values);
-      values.code = zipcode;
-      values.nom = selectedCity;
       // URL API
       const apiUrl = import.meta.env.VITE_APP_API_URL;
 
       // Fetch post data
       Axios.post(`${apiUrl}/api/post/create`, values)
-
         .then((response) => {
           setStatus(response.status);
           console.log(response);
           resetForm();
-          setZipcode("");
-          setSelectedCity("");
           setStatus({ sent: true, message: "Message envoyé !" });
         })
         .catch((error) => {
@@ -166,34 +140,6 @@ function Form() {
               <div>{formik.errors.email}</div>
             ) : null}
 
-            <input
-              id="zipcode"
-              type="text"
-              className="p-3  w-full rounded-md text-black mb-3"
-              value={zipcode}
-              placeholder="code Postale"
-              onChange={handleZipcodeChange}
-            />
-            {formik.touched.code && formik.errors.code ? (
-              <div className="text-white">{formik.errors.code}</div>
-            ) : null}
-            {errorMessage && <div id="error-message">{errorMessage}</div>}
-            <select
-              id="city"
-              className="p-3 w-full rounded-md text-black mb-3"
-              value={selectedCity}
-              onChange={handleCityChange}
-            >
-              {cities.map((city) => (
-                <option key={city.nom} value={city.nom}>
-                  {city.nom}
-                </option>
-              ))}
-            </select>
-            {formik.touched.nom && formik.errors.nom ? (
-              <div>{formik.errors.nom}</div>
-            ) : null}
-
             {formik.status && formik.status.message && (
               <p
                 className={` ${
@@ -205,6 +151,24 @@ function Form() {
                 {formik.status.message}
               </p>
             )}
+            <input
+              id="zipcode"
+              type="text"
+              className="p-3  w-full rounded-md text-black mb-3"
+              value={zipcode}
+              onChange={handleZipcodeChange}
+            />
+            <select
+              id="city"
+              className="p-3  w-full rounded-md text-black mb-3"
+            >
+              {cities.map((city) => (
+                <option key={city.nom} value={city.nom}>
+                  {city.nom}
+                </option>
+              ))}
+            </select>
+            {errorMessage && <div id="error-message">{errorMessage}</div>}
             <button
               type="submit"
               disabled={formik.isSubmitting}

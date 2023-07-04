@@ -50,9 +50,11 @@ app.get("/api/get", (req, res) => {
 //// * create post * ////
 app.post("/api/post/create", (req, res) => {
   // envoyer req avec object contenant mail & name ( body)
-  const { name, lastName, email } = req.body;
-  const InsertQuery = `INSERT INTO mailinfo (name, lastname, email)VALUES (?, ?, ?)`;
-  const user = [name, lastName, email];
+  const { name, lastName, email, code, nom } = req.body;
+
+  const InsertQuery = `INSERT INTO mailinfo (name, lastname, email, code, nom)VALUES (?, ?, ?, ?, ?)`;
+  const user = [name, lastName, email, code, nom];
+  console.log(user);
 
   pool.query(InsertQuery, user, (err, data) => {
     if (err) {
