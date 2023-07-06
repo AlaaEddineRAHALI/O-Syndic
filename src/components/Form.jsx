@@ -4,196 +4,167 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import Axios from "axios";
-import { useFormik } from "formik";
-
 import * as Yup from "yup";
+import {
+  Formik,
+  useFormik,
+  Form,
+  Field,
+  ErrorMessage,
+  useField,
+  useFormikContext,
+} from "formik";
 
-function Form() {
-  const [zipcode, setZipcode] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+const MyField = (props) => {
+  const {
+    values: { code },
+    setFieldValue,
+  } = useFormikContext();
   const [cities, setCities] = useState([]);
-  const [selectedCity, setSelectedCity] = useState("dd");
+  const [ErrorMessage, setErrorMessage] = useState("");
+  const [field, meta] = useField(props);
 
-  const handleZipcodeChange = (event) => {
-    const code = event.target.value;
-    setZipcode(code);
-  };
-  const handleCityChange = (event) => {
-    const cityName = event.target.value;
-
-    if (cityName) {
-      const filteredResults = cities.filter((city) => city.nom === cityName);
-      if (filteredResults.length === 1) {
-        setSelectedCity(filteredResults[0].nom);
-      } else {
-        setSelectedCity("");
-      }
-    }
-  };
-  useEffect(() => {
-    if (cities && cities.length > 0) {
-      const firstCityName = cities[0].nom;
-      setSelectedCity(firstCityName);
-    }
-  }, [cities]);
   useEffect(() => {
     const apiUrl = "https://geo.api.gouv.fr/communes?codePostal=";
     const fetchData = async () => {
       try {
-        const response = await Axios.get(apiUrl + zipcode);
+        const response = await Axios.get(apiUrl + code);
         const results = response.data;
-
         if (results.length) {
-          setErrorMessage("");
           setCities(results);
+          setFieldValue(props.name, results[0].nom);
         } else {
-          if (zipcode) {
-            console.log("Erreur de code postal.");
+          if (code) {
             setErrorMessage("Aucune commune avec ce code postal.");
           } else {
-            setErrorMessage("");
-            setCities([]);
+            setCities([code]);
           }
         }
       } catch (error) {
-        console.log(error);
         setCities([]);
       }
     };
 
     fetchData();
-  }, [zipcode]);
-
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      lastName: "",
-      email: "",
-      code: "",
-      nom: "",
-    },
-
-    validationSchema: Yup.object({
-      name: Yup.string()
-        .min(2, "Too Short!")
-        .max(5, "Too Long!")
-        .required('Merci de saisir votre nom"'),
-
-      lastName: Yup.string()
-        .min(2, "Too Short!")
-        .max(5, "Too Long!")
-        .required('Merci de saisir votre prénom"'),
-
-      email: Yup.string()
-        .email("Adresse mail est invalide")
-        .required("Adresse mail est requise"),
-      code: Yup.string().matches(
-        /^[0-9]{5}$/,
-        "Code postal doit contenir exactement 5 chiffres"
-      ),
-      nom: Yup.string(),
-    }),
-    onSubmit: (values, { resetForm, setStatus }) => {
-      console.log(values);
-      values.code = zipcode;
-      values.nom = selectedCity;
-      // URL API
-      const apiUrl = import.meta.env.VITE_APP_API_URL;
-
-      // Fetch post data
-      Axios.post(`${apiUrl}/api/post/create`, values)
-
-        .then((response) => {
-          setStatus(response.status);
-          console.log(response);
-          resetForm();
-          setZipcode("");
-          setSelectedCity("");
-          setStatus({ sent: true, message: "Message envoyé !" });
-        })
-        .catch((error) => {
-          resetForm();
-          setStatus({ sent: false, message: `Oups ! ${error}` });
-        });
-      console.log(values);
-    },
-  });
+  }, [code, setFieldValue, props.name]);
+  const handleChange = (event) => {
+    const selectedCity = event.target.value;
+    setFieldValue(props.name, selectedCity);
+  };
 
   return (
-    <div
-      className="w-full py-16 text-white px-5 sm:px-16  bg-primary"
-      id="form"
-    >
+    <>
+      <div className="w-full rounded-md text-black mb-3">
+        {cities && cities[0] === "" && code.length !== 5
+          ? null
+          : code.length <= 5 && (
+              <select
+                className="p-3 w-full rounded-md text-black mb-3"
+                value={props.value}
+                onChange={handleChange}
+              >
+                {cities.map((city) => (
+                  <option key={city.code} value={city.nom}>
+                    {city.nom}
+                  </option>
+                ))}
+              </select>
+            )}
+      </div>
+    </>
+  );
+};
+
+function FormNews() {
+  const formik = useFormik({});
+  return (
+    <div className="w-full py-16 text-white px-5 sm:px-16 bg-primary" id="form">
       <div className="max-w-[1240px] mx-auto grid lg:grid-cols-3 items-center">
         <div className="lg:col-span-2 ml-0 sm:ml-0">
           <h1 className="md:text-4xl sm:text-3xl text-2xl font-bold py-2">
             Chez O'Syndic <br /> Nous souhaitons rester en contact avec
             vous&nbsp;!
           </h1>
-          <p>Inscrivez-vous pour recevoir nos newsletter </p>
+          <p>Inscrivez-vous pour recevoir nos newsletters</p>
         </div>
 
-        <form onSubmit={formik.handleSubmit} className="my-4">
-          <div className="flex flex-col  items-center justify-between w-full ">
-            <input
-              id="name"
+        <Formik
+          initialValues={{
+            name: "",
+            lastName: "",
+            email: "",
+            code: "",
+            nom: "",
+          }}
+          validationSchema={Yup.object({
+            code: Yup.string()
+              .required("Ce champ est obligatoire")
+              .length(5, "Le code postal doit contenir exactement 5 chiffres"),
+            name: Yup.string()
+              .min(2, "Too Short!")
+              .max(5, "Too Long!")
+              .required('Merci de saisir votre nom"'),
+
+            lastName: Yup.string()
+              .min(2, "Too Short!")
+              .max(5, "Too Long!")
+              .required('Merci de saisir votre prénom"'),
+
+            email: Yup.string()
+              .email("Adresse mail est invalide")
+              .required("Adresse mail est requise"),
+          })}
+          onSubmit={(values, { resetForm, setStatus }) => {
+            if (values.nom !== "") {
+              console.log(values);
+              // URL API
+              const apiUrl = import.meta.env.VITE_APP_API_URL;
+
+              // Fetch post data
+              Axios.post(`${apiUrl}/api/post/create`, values)
+                .then((response) => {
+                  setStatus(response.status);
+                  resetForm();
+                  setStatus({ sent: true, message: "Message envoyé !" });
+                })
+                .catch((error) => {
+                  resetForm();
+                  setStatus({ sent: false, message: `Oups ! ${error}` });
+                });
+              console.log("values", values);
+            }
+          }}
+        >
+          <Form className="flex flex-col items-center justify-between w-full ">
+            <Field
+              name="name"
               className="p-3  w-full rounded-md text-black mb-3"
-              type="text"
               placeholder="votre Prénom"
-              {...formik.getFieldProps("name")}
             />
-            {formik.touched.name && formik.errors.name ? (
-              <div>{formik.errors.name}</div>
-            ) : null}
-            <input
-              id="lastName"
+            <ErrorMessage name="name" className="bg-red-500" />
+
+            <Field
+              name="lastName"
               className="p-3  w-full rounded-md text-black mb-3"
-              type="text"
               placeholder="votre Nom"
-              {...formik.getFieldProps("lastName")}
             />
-            {formik.touched.lastName && formik.errors.lastName ? (
-              <div className="bg-red-500">{formik.errors.lastName}</div>
-            ) : null}
-            <input
-              id="email"
+            <ErrorMessage name="lastName" className="bg-red-500" />
+            <Field
+              name="email"
               className="p-3  w-full rounded-md text-black mb-3"
-              type="email"
               placeholder="adresse mail"
-              {...formik.getFieldProps("email")}
             />
-            {formik.touched.email && formik.errors.email ? (
-              <div>{formik.errors.email}</div>
-            ) : null}
-
-            <input
-              id="zipcode"
-              type="text"
-              className="p-3  w-full rounded-md text-black mb-3"
-              value={zipcode}
-              placeholder="code Postale"
-              onChange={handleZipcodeChange}
-            />
-            {formik.touched.code && formik.errors.code ? (
-              <div className="text-white">{formik.errors.code}</div>
-            ) : null}
-            {errorMessage && <div id="error-message">{errorMessage}</div>}
-            <select
-              id="city"
+            <ErrorMessage name="email" className="bg-red-500" />
+            <Field
+              name="code"
               className="p-3 w-full rounded-md text-black mb-3"
-              value={selectedCity}
-              onChange={handleCityChange}
-            >
-              {cities.map((city) => (
-                <option key={city.nom} value={city.nom}>
-                  {city.nom}
-                </option>
-              ))}
-            </select>
-            {formik.touched.nom && formik.errors.nom ? (
-              <div>{formik.errors.nom}</div>
-            ) : null}
-
+              placeholder="Code Postal"
+            />
+            <ErrorMessage name="code" className="bg-red-500" />
+            <MyField
+              name="nom"
+              className="p-3 w-full rounded-md text-black mb-3"
+            />
             {formik.status && formik.status.message && (
               <p
                 className={` ${
@@ -212,11 +183,11 @@ function Form() {
             >
               Subscribe
             </button>
-          </div>
-        </form>
+          </Form>
+        </Formik>
       </div>
     </div>
   );
 }
 
-export default Form;
+export default FormNews;
