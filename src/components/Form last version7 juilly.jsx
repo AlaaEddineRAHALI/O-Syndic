@@ -20,7 +20,9 @@ const MyField = (props) => {
     setFieldValue,
   } = useFormikContext();
   const [cities, setCities] = useState([]);
-  // console.log(cities);
+  console.log(cities);
+
+  console.log(cities[0]);
 
   useEffect(() => {
     const apiUrl = "https://geo.api.gouv.fr/communes?codePostal=";
@@ -40,7 +42,6 @@ const MyField = (props) => {
             setCities([""]);
           }
         }
-        props.onChange(results);
       } catch (error) {
         setCities([]);
       }
@@ -77,33 +78,6 @@ const MyField = (props) => {
 };
 
 function FormNews() {
-  const [cities, setCities] = useState([]);
-  console.log("la valeur récupérer", cities[0]);
-
-  const validationSchema = Yup.object({
-    nom: Yup.string().nullable(),
-    code: Yup.string()
-      .required("Le code postal est requis")
-      .length(5, "Le code postal doit contenir exactement 5 chiffres")
-      .test("is-valid-code", "Aucune commune avec ce code postal", (value) => {
-        if (value) {
-          // Vérifier si le code postal a des résultats dans cities
-          return cities.length !== 0;
-        }
-        return true; // La validation passe si le champ est vide
-      }),
-    name: Yup.string()
-      .min(2, "Too Short!")
-      .max(5, "Too Long!")
-      .required('Merci de saisir votre nom"'),
-    lastName: Yup.string()
-      .min(2, "Too Short!")
-      .max(5, "Too Long!")
-      .required('Merci de saisir votre prénom"'),
-    email: Yup.string()
-      .email("Adresse mail est invalide")
-      .required("Adresse mail est requise"),
-  });
   return (
     <div className="w-full py-16 text-white px-5 sm:px-16 bg-primary" id="form">
       <div className="max-w-[1240px] mx-auto grid lg:grid-cols-3 items-center">
@@ -123,7 +97,35 @@ function FormNews() {
             code: "",
             nom: "",
           }}
-          validationSchema={validationSchema}
+          validationSchema={Yup.object({
+            code: Yup.string()
+              .required("Le code postal est requis")
+              .length(5, "Le code postal doit contenir exactement 5 chiffres")
+              .matches(
+                /^(([1-95]{2}|2A|2B)[0-9]{3})$|^[971-974]$/,
+                "Aucune commune avec ce code postal"
+              )
+              .when("nom", {
+                is: (value) => value === "undefined",
+                then: Yup.string().required("Le nom est requis"),
+              }),
+
+            nom: Yup.string().nullable(),
+
+            name: Yup.string()
+              .min(2, "Too Short!")
+              .max(5, "Too Long!")
+              .required('Merci de saisir votre nom"'),
+
+            lastName: Yup.string()
+              .min(2, "Too Short!")
+              .max(5, "Too Long!")
+              .required('Merci de saisir votre prénom"'),
+
+            email: Yup.string()
+              .email("Adresse mail est invalide")
+              .required("Adresse mail est requise"),
+          })}
           onSubmit={(values, { resetForm, setStatus }) => {
             if (values.nom !== "") {
               console.log(values);
@@ -171,19 +173,14 @@ function FormNews() {
               />
               <ErrorMessage name="email" className="bg-red-500" />
               <Field
-                id="code"
                 name="code"
                 className="p-3 w-full rounded-md text-black mb-3"
                 placeholder="Code Postal"
-                onBlur={handleBlur}
               />
               <ErrorMessage name="code" className="bg-red-500" />
               <MyField
                 name="nom"
                 className="p-3 w-full rounded-md text-black mb-3"
-                onChange={(newCities) => {
-                  setCities(newCities);
-                }}
               />
               {status && status.message && (
                 <p
