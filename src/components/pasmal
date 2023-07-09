@@ -52,7 +52,7 @@ const MyField = (props) => {
 
   return (
     <>
-      {code.length === 5 && !isNaN(code) && (
+      {code.length === 5 && (
         <select
           as="select"
           name="selectedCity"
@@ -70,7 +70,7 @@ const MyField = (props) => {
           ))}
         </select>
       )}
-      {code.length === 5 && !isCodeValid && !isNaN(code) && (
+      {code.length === 5 && !isCodeValid && (
         <p className="text-red-500">Aucune commune avec ce code postal</p>
       )}
     </>
@@ -96,11 +96,11 @@ function FormNews() {
     nom: Yup.string().nullable(),
     code: Yup.string()
       .required("Le code postal est requis")
-      .length(5, "Composé de 5 chiffres, sans lettres.")
+      .length(5, "Uniquement 5 chiffres, sans lettres.")
       .required("Le code postal est requis")
       .test(
         "is-valid-code",
-        "Composé de 5 chiffres, sans lettres.",
+        "Uniquement  5 chiffres, sans lettres.",
         (value) => {
           return /^\d{5}$/.test(value);
         }
