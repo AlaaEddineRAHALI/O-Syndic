@@ -5,9 +5,9 @@ import Card from "./Card";
 const cardsData = [
   {
     id: 1,
-    name: "Evolution de vos comptes",
+    title: "Evolution de vos comptes",
     photo: Icon1,
-    price: "En Temps Réel",
+    subtitle: "En Temps Réel",
     info: {
       title1: "Documents personnels",
       title2: "Documents immeuble",
@@ -15,8 +15,8 @@ const cardsData = [
   },
   {
     id: 2,
-    name: "Gestion des coproprités",
-    price: "Moderne",
+    title: "Gestion des coproprités",
+    subtitle: "Moderne",
     photo: Icon2,
     info: {
       title1: "Gestion des travaux",
@@ -25,8 +25,8 @@ const cardsData = [
   },
   {
     id: 3,
-    name: "Echange Facile",
-    price: "Dématérialisé",
+    title: "Echange Facile",
+    subtitle: "Dématérialisé",
     photo: Icon3,
     info: {
       title1: "Entre copropriétaires",

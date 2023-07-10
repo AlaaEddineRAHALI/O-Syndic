@@ -6,20 +6,19 @@ import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import Axios from "axios";
 
+// Use context to manage the name of the city.
 const MyField = (props) => {
-  // Props te montre les composants de MyField:
-  console.log("props", props); //name:nom
-  // mettre les valeurs à récupérer(email...)
   const {
     values: { code },
     setFieldValue,
   } = useFormikContext();
-  // la liste de toutes les villes disponibles
-  // exemple 80150 => 26 resultats
+  //state to manage  cities:
   const [cities, setCities] = useState([]);
+  //state to manage CodeValid:
   const [isCodeValid, setIsCodeValid] = useState(false);
-
+  //hooks to refresh the page:
   useEffect(() => {
+    //API zipcode with city from gouv.fr:
     const apiUrl = "https://geo.api.gouv.fr/communes?codePostal=";
     const fetchData = async () => {
       try {
@@ -54,12 +53,12 @@ const MyField = (props) => {
           as="select"
           name="selectedCity"
           className="p-3 w-full rounded-md text-black mb-3"
-          value={props.value}
           onChange={(event) => {
             const selectedCity = event.target.value;
             setFieldValue(props.name, selectedCity);
           }}
         >
+          {/* To display all the cities from the results */}
           {cities.map((city, index) => (
             <option key={index} value={city.nom}>
               {city.nom}
@@ -75,6 +74,7 @@ const MyField = (props) => {
 };
 
 function FormNews() {
+  // Schema to validat Field:
   const validationSchema = Yup.object({
     name: Yup.string()
       .min(2, "Too Short!")
@@ -91,8 +91,7 @@ function FormNews() {
     code: Yup.string()
       .required("Le code postal est requis")
       .length(5, "Composé de 5 chiffres (Sans lettres...)")
-      // ce test vérifie qu'on en cas d'une chaine de caractère hors 5 chiffres : message d'erreur s'affiche
-      // en cas de 5 chiffres par contre pas de résultat est géréé dans ligne 67 (hors YUP)
+      // To exclude non-digits:
       .test(
         "is-valid-code",
         "Composé de 5 chiffres (Sans lettres...)",
@@ -120,14 +119,12 @@ function FormNews() {
             code: "",
             nom: "",
           }}
+          // use validation Schema:
           validationSchema={validationSchema}
           onSubmit={(values, { resetForm, setStatus }) => {
             if (values.nom !== "") {
               console.log(values);
-              // URL API
               const apiUrl = import.meta.env.VITE_APP_API_URL;
-
-              // Fetch post data : Values est l'objet de mon formulaire
               Axios.post(`${apiUrl}/api/post/create`, values)
                 .then((response) => {
                   setStatus(response.status);
@@ -142,7 +139,6 @@ function FormNews() {
                   resetForm();
                   setStatus({ sent: false, message: `Oups ! ${error}` });
                 });
-              console.log("values", values);
             }
           }}
         >
@@ -179,8 +175,8 @@ function FormNews() {
                 <p
                   className={` ${
                     status.sent
-                      ? "bg-green-200 text-green-700"
-                      : "bg-red-200 text-red-800"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-800"
                   }`}
                 >
                   {status.message}

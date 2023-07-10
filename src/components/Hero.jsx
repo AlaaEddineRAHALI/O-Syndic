@@ -14,7 +14,7 @@ function Hero() {
         </p>
         <a
           href="/#form"
-          alt="go to music"
+          alt="go to newsletters"
           type="button"
           className="bg-secondary w-48 rounded-md font-medium my-6 mx-auto py-3 text-white cursor-pointer"
         >
