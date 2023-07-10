@@ -6,9 +6,8 @@ import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import Axios from "axios";
 const MyField = (props) => {
-  // Props te montre les composants de MyField:
-  console.log("props", props); //name:nom
-  // mettre les valeurs à récupérer(email...)
+  console.log(props); // name: 'nom', className: 'p-3 w-full rounded-md text-black mb-3', onChange: ƒ
+  // tu peux mettre les valeurs que tu souhaites récupérer dans le contexyte (email...)
   const {
     values: { code },
     setFieldValue,
@@ -16,7 +15,7 @@ const MyField = (props) => {
   // la liste de toutes les villes disponibles
   // exemple 80150 => 26 resultats
   const [cities, setCities] = useState([]);
-  const [isCodeValid, setIsCodeValid] = useState(false);
+  const [isCodeValid, setIsCodeValid] = useState(true);
 
   useEffect(() => {
     const apiUrl = "https://geo.api.gouv.fr/communes?codePostal=";
@@ -28,16 +27,16 @@ const MyField = (props) => {
         if (results.length) {
           setCities(results);
           setFieldValue(props.name, results[0].nom);
-          setIsCodeValid(false);
+          setIsCodeValid(true);
         } else {
           setCities([]);
           setFieldValue(props.name, "");
-          setIsCodeValid(true);
+          setIsCodeValid(false);
         }
       } catch (error) {
         setCities([]);
         setFieldValue(props.name, "");
-        setIsCodeValid(true);
+        setIsCodeValid(false);
       }
     };
 
@@ -66,7 +65,7 @@ const MyField = (props) => {
           ))}
         </select>
       )}
-      {code.length === 5 && isCodeValid && !isNaN(code) && (
+      {code.length === 5 && !isCodeValid && !isNaN(code) && (
         <p className="text-white-500">Aucune commune avec ce code postal</p>
       )}
     </>
@@ -121,8 +120,8 @@ function FormNews() {
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { resetForm, setStatus }) => {
+            console.log("values", values);
             if (values.nom !== "") {
-              console.log(values);
               // URL API
               const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -141,11 +140,10 @@ function FormNews() {
                   resetForm();
                   setStatus({ sent: false, message: `Oups ! ${error}` });
                 });
-              console.log("values", values);
             }
           }}
         >
-          {({ isSubmitting, status }) => (
+          {({ handleBlur, status }) => (
             <Form className="flex flex-col items-center justify-between w-full ">
               <Field
                 name="name"
@@ -171,6 +169,7 @@ function FormNews() {
                 name="code"
                 className="p-3 w-full rounded-md text-black mb-3"
                 placeholder="Code Postal"
+                onBlur={handleBlur}
               />
               <ErrorMessage name="code" className="bg-red-500" />
               <MyField name="nom" />
@@ -187,7 +186,7 @@ function FormNews() {
               )}
               <button
                 type="submit"
-                disabled={isSubmitting}
+                // disabled={isSubmitting}
                 className="bg-secondary text-white rounded-md font-medium w-full px-6 py-3 cursor-pointer hover:bg-slate-400"
               >
                 Subscribe
