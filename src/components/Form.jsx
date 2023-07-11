@@ -48,7 +48,7 @@ const MyField = (props) => {
 
   return (
     <>
-      {code.length === 5 && !isNaN(code) && (
+      {code.length === 5 && !isNaN(code) && !isCodeValid && (
         <select
           as="select"
           name="selectedCity"
@@ -87,7 +87,7 @@ function FormNews() {
     email: Yup.string()
       .email("Adresse mail est invalide")
       .required("Adresse mail est requise"),
-    nom: Yup.string().nullable(),
+    city: Yup.string().nullable(),
     code: Yup.string()
       .required("Le code postal est requis")
       .length(5, "Composé de 5 chiffres (Sans lettres...)")
@@ -117,12 +117,13 @@ function FormNews() {
             lastName: "",
             email: "",
             code: "",
-            nom: "",
+            city: "",
           }}
           // use validation Schema:
           validationSchema={validationSchema}
           onSubmit={(values, { resetForm, setStatus }) => {
-            if (values.nom !== "") {
+            console.log(values);
+            if (values.city !== "") {
               console.log(values);
               const apiUrl = import.meta.env.VITE_APP_API_URL;
               Axios.post(`${apiUrl}/api/post/create`, values)
@@ -142,7 +143,7 @@ function FormNews() {
             }
           }}
         >
-          {({ isSubmitting, status }) => (
+          {({ isSubmitting, status, values }) => (
             <Form className="flex flex-col items-center justify-between w-full ">
               <Field
                 name="name"
@@ -170,7 +171,8 @@ function FormNews() {
                 placeholder="Code Postal"
               />
               <ErrorMessage name="code" className="bg-red-500" />
-              <MyField name="nom" />
+              <MyField name="city" />
+
               {status && status.message && (
                 <p
                   className={` ${
@@ -182,6 +184,7 @@ function FormNews() {
                   {status.message}
                 </p>
               )}
+
               <button
                 type="submit"
                 disabled={isSubmitting}
