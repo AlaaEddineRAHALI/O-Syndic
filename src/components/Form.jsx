@@ -77,24 +77,24 @@ function FormNews() {
   // Schema to validat Field:
   const validationSchema = Yup.object({
     name: Yup.string()
-      .min(2, "Too Short!")
-      .max(5, "Too Long!")
-      .required('Merci de saisir votre nom"'),
+      .min(2, "Trop court!")
+      .max(20, "Trop long!")
+      .required("Veuillez saisir votre prénom"),
     lastName: Yup.string()
-      .min(2, "Too Short!")
-      .max(5, "Too Long!")
-      .required('Merci de saisir votre prénom"'),
+      .min(2, "Trop court!")
+      .max(20, "Trop long!")
+      .required("Veuillez saisir votre nom de famille"),
     email: Yup.string()
       .email("Adresse mail est invalide")
-      .required("Adresse mail est requise"),
+      .required("Veuillez saisir votre adresse mail"),
     city: Yup.string().nullable(),
     code: Yup.string()
-      .required("Le code postal est requis")
-      .length(5, "Composé de 5 chiffres (Sans lettres...)")
+      .required("Veuillez saisir votre code postal")
+      .length(5, "Le code postal est composé de 5 chiffres (Sans lettres...)")
       // To exclude non-digits:
       .test(
         "is-valid-code",
-        "Composé de 5 chiffres (Sans lettres...)",
+        "Le code postal est composé de 5 chiffres (Sans lettres...)",
         (value) => {
           return /^\d{5}$/.test(value);
         }
