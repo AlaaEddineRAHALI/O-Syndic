@@ -14,3 +14,7 @@ Les technologies utilisées pour ce projet comprennent :
 - **Express** pour mettre en place des routes.
 - **SQL** pour mettre en place des requetes.
 - **MySQL Database** pour stcoker la data saisie par les utilisateurs.
+
+##### VIDEO :
+
+[O'Syndic : V1](https://player.vimeo.com/video/844603359?h=7de1749412)
