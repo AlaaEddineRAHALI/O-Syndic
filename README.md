@@ -20,8 +20,8 @@ Les technologies utilisées pour ce projet comprennent :
 ## Comment instaler le projet :
 
 - Clonner le projet
-- Lancer dans un terminal : npm run dev.
-- Ouvrir le dossier server : npm start.
+- Lancer dans un terminal : npm run dev
+- Ouvrir le dossier server : npm start
 
 ## VIDEO :
 
